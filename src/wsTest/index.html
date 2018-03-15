@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>聊天</title>
+    <link rel="stylesheet" href="">
+</head>
+
+<style type="text/css" media="screen">
+    div {
+        border: 1px solid #cccccc;
+        width: 1000px;
+        min-height: 100px;
+    }
+</style>
+
+<body>
+    <canvas id="myCanvas"></canvas>
+    <script type="text/javascript">
+        var ws = new WebSocket("ws://127.0.0.1:9191?t=test");
+        ws.onopen = function() {
+            console.log("连接状态", ws);
+        };
+        ws.onmessage = function(evt) {
+            console.log(evt.data);
+            var data = JSON.parse(evt.data);
+            setBallPosition(data.boxAPosition,data.boxBPosition);
+        };
+        ws.onclose = function(evt) {
+            console.log("WebSocketClosed!");
+            console.log(evt);
+        };
+        ws.onerror = function(evt) {
+            console.log("WebSocketError!");
+        };
+
+        function send(num) {
+            ws.send(num);
+        };
+
+        function exit() {
+            var r = ws.close();
+            console.log("退出", r);
+        }
+
+        window.onload = function(){
+            var num = parseInt(Math.random()*1000000)+1;
+            console.log("客户端编号：",num);
+
+            send(num);
+            var canvas=document.getElementById('myCanvas');
+            ctx=canvas.getContext('2d');
+            canvas.height = document.scrollingElement.scrollHeight; //winHeight;
+            canvas.width = document.scrollingElement.scrollWidth;//winWidth;
+
+            // var boxA = Matter.Bodies.circle(400, 200, 80, 80);
+            // var boxB = Matter.Bodies.circle(450, 50, 80, 80);
+
+            drawCircle(400,200,80);
+            drawCircle(450,50,80);
+        }
+
+        var ctx = null;
+        var winWidth = 750;
+        var winHeight = 1334;
+
+        function setBallPosition(aPos,bPos){
+            ctx && ctx.clearRect(0,0,winWidth,winHeight);
+            drawCircle(aPos.x,aPos.y,80);
+            drawCircle(bPos.x,bPos.y,80);
+        }
+
+        function drawCircle(x,y,radius){
+            ctx.beginPath();
+            ctx.arc(x,y,radius,0,2*Math.PI);
+            ctx.stroke();
+            ctx.closePath();
+        }
+    </script>
+
+
+</body>
+</html>
